@@ -1,9 +1,11 @@
 import React from 'react';
+import { FadeIn } from '../components/animations/FadeIn';
+import { StaggerContainer, StaggerItem } from '../components/animations/StaggerContainer';
 
 export const Features: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-      <div className="mx-auto max-w-2xl text-center mb-16">
+      <FadeIn direction="up" className="mx-auto max-w-2xl text-center mb-16">
         <h2 className="text-base font-semibold leading-7 text-indigo-600">Capabilities</h2>
         <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
           Everything you need to style products
@@ -11,9 +13,9 @@ export const Features: React.FC = () => {
         <p className="mt-6 text-lg leading-8 text-slate-600">
           Our platform leverages the power of Google Gemini and n8n automation to deliver real-time, high-quality product restyling.
         </p>
-      </div>
+      </FadeIn>
       <div className="mx-auto max-w-2xl lg:max-w-none">
-        <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+        <StaggerContainer className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
           {[
             {
               name: 'Real-time Color Variations',
@@ -43,7 +45,7 @@ export const Features: React.FC = () => {
               ),
             },
           ].map((feature) => (
-            <div key={feature.name} className="flex flex-col">
+            <StaggerItem key={feature.name} className="flex flex-col">
               <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-slate-900">
                 <div className="flex h-10 w-10 flex-none items-center justify-center rounded-lg bg-indigo-600">
                   {feature.icon}
@@ -53,9 +55,9 @@ export const Features: React.FC = () => {
               <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-slate-600">
                 <p className="flex-auto">{feature.description}</p>
               </dd>
-            </div>
+            </StaggerItem>
           ))}
-        </dl>
+        </StaggerContainer>
       </div>
     </div>
   );
