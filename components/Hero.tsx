@@ -13,7 +13,14 @@ export const Hero: React.FC = () => {
             Select a product, pick a color, and let our Gemini-powered engine handle the rest.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <a href="#products" className="rounded-full bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all hover:scale-105">
+            <a 
+              href="#products" 
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="rounded-full bg-indigo-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all hover:scale-105"
+            >
               Try the Demo
             </a>
             <a href="#" className="text-sm font-semibold leading-6 text-slate-900 flex items-center gap-1 group">

@@ -25,17 +25,21 @@ const rootRoute = createRootRoute({
     const [showConfigModal, setShowConfigModal] = useState(false);
     const [webhookInput, setWebhookInput] = useState('');
 
+    const isEnvConfigured = !!import.meta.env.VITE_N8N_WEBHOOK_URL;
+
     useEffect(() => {
       const currentUrl = getWebhookUrl();
       if (currentUrl) {
           setWebhookInput(currentUrl);
       }
-    }, []);
+    }, [isEnvConfigured]);
 
     const handleSaveConfig = () => {
-      if (webhookInput.trim()) {
+      if (webhookInput.trim() && !isEnvConfigured) {
           setWebhookUrl(webhookInput.trim());
           setShowConfigModal(false);
+      } else if (isEnvConfigured) {
+         setShowConfigModal(false);
       }
     };
 
@@ -72,27 +76,36 @@ const rootRoute = createRootRoute({
                         <input 
                             type="url" 
                             placeholder="https://your-n8n-instance.com/webhook/..."
-                            className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm"
+                            className={`w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all text-sm ${isEnvConfigured ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}`}
                             value={webhookInput}
                             onChange={(e) => setWebhookInput(e.target.value)}
+                            disabled={isEnvConfigured}
                         />
-                        <p className="mt-2 text-xs text-slate-500">
-                            The webhook should accept a POST request with JSON body: <code>{`{ image, color, productName }`}</code>
-                        </p>
+                        {isEnvConfigured ? (
+                             <p className="mt-2 text-xs text-green-600 font-semibold bg-green-50 p-2 rounded border border-green-200">
+                                ✓ Configured via Environment Variable
+                             </p>
+                        ) : (
+                            <p className="mt-2 text-xs text-slate-500">
+                                The webhook should accept a POST request with JSON body: <code>{`{ image, color, productName }`}</code>
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex gap-3 justify-end">
-                        <button 
-                            onClick={() => setShowConfigModal(false)}
-                            className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
-                        >
-                            Cancel
-                        </button>
+                        {!isEnvConfigured && (
+                            <button 
+                                onClick={() => setShowConfigModal(false)}
+                                className="px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"
+                            >
+                                Cancel
+                            </button>
+                        )}
                         <button 
                             onClick={handleSaveConfig}
                             className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-500 shadow-sm"
                         >
-                            Save Configuration
+                            {isEnvConfigured ? 'Close' : 'Save Configuration'}
                         </button>
                     </div>
                 </div>

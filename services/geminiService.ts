@@ -3,7 +3,9 @@
 const WEBHOOK_STORAGE_KEY = "n8n_webhook_url";
 
 export const getWebhookUrl = () =>
-  localStorage.getItem(WEBHOOK_STORAGE_KEY) || "";
+  import.meta.env.VITE_N8N_WEBHOOK_URL ||
+  localStorage.getItem(WEBHOOK_STORAGE_KEY) ||
+  "";
 
 export const setWebhookUrl = (url: string) =>
   localStorage.setItem(WEBHOOK_STORAGE_KEY, url);
