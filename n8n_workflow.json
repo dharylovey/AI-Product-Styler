@@ -1,5 +1,5 @@
 {
-  "name": "AI Product Styler Backend",
+  "name": "My workflow",
   "nodes": [
     {
       "parameters": {
@@ -8,24 +8,24 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "name": "Webhook",
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1,
+      "typeVersion": 2.1,
       "position": [
-        -208,
-        80
+        0,
+        0
       ],
-      "webhookId": "ai-style-webhook",
-      "id": "93e6ade3-f0be-4bea-bb81-7b94365b581c"
+      "id": "6df2c7a1-7860-45ff-8517-7e3eeed590d1",
+      "name": "Webhook",
+      "webhookId": "2d154313-56e5-4242-bb55-23af1fe4dd1d"
     },
     {
       "parameters": {
         "resource": "image",
         "modelId": {
           "__rl": true,
-          "value": "models/gemini-3-pro-image-preview",
-          "mode": "list",
-          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+          "value": "={{ $json.body.model }}",
+          "mode": "id",
+          "cachedResultName": "Custom Model"
         },
         "prompt": "=Professional product photo of {{ $json.body.productName }} in {{ $json.body.color }} color (Note: Since your webhook data is inside body, we use $json.body.X)",
         "options": {}
@@ -33,14 +33,14 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        0,
-        80
+        208,
+        0
       ],
-      "id": "639954f3-7083-4bf2-8b4b-daf0b8427af3",
+      "id": "cb8d6a10-db5e-499a-bf7c-995ce5eb05de",
       "name": "Generate an image",
       "credentials": {
         "googlePalmApi": {
-          "id": "9D6UcRgGKHZh6gJe",
+          "id": "4fTzLZVCV2ykd3If",
           "name": "Google Gemini(PaLM) Api account"
         }
       }
@@ -53,10 +53,10 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        192,
-        80
+        416,
+        0
       ],
-      "id": "4ad0d1d9-d83c-42fb-a9b6-429121541707",
+      "id": "0cc6a0f6-90a2-4d65-b1d7-dabf69143187",
       "name": "Respond to Webhook"
     }
   ],
@@ -88,13 +88,16 @@
   "active": true,
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 3600
   },
-  "versionId": "a6baf276-c890-4981-ab84-6f39a83a3b58",
+  "versionId": "bf55cf12-a939-41ca-8532-8a5da7ec8ea1",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "c2d76bf28c8779040ecaa6058a2869aab9661a94585571551dbbffff47d253ea"
+    "instanceId": "b10c714de5adc8656b4fdedb42a0d83a89e5753199212ba91756756dd3f1b9f4"
   },
-  "id": "poMtU2yRmsBMefZI5jSRO",
+  "id": "ASDyoG7npn5iSzqPb_qgk",
   "tags": []
 }
