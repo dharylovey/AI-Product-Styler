@@ -21,6 +21,7 @@ export const generateStyledProductImage = async (
   imageBase64: string,
   targetColor: string,
   productName: string,
+  model: string,
 ): Promise<string> => {
   const webhookUrl = getWebhookUrl();
 
@@ -39,6 +40,7 @@ export const generateStyledProductImage = async (
       image: imageBase64,
       color: targetColor,
       productName: productName,
+      model: model,
     };
 
     // If we are on HTTPS and trying to hit HTTP, we MUST use the proxy

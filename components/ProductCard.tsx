@@ -1,6 +1,6 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { createPortal } from 'react-dom';
-import { Product, ProductColor } from '../types';
+import { Product, ProductColor, AppContext } from '../types';
 import { urlToBase64 } from '../utils/imageUtils';
 import { generateStyledProductImage } from '../services/geminiService';
 
@@ -10,6 +10,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissing }) => {
+  const appContext = useContext(AppContext);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -35,7 +36,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
       const newImageBase64 = await generateStyledProductImage(
         base64Img,
         selectedColor.name,
-        product.name
+        product.name,
+        appContext?.selectedModel || ''
       );
 
       // 3. Set result
@@ -50,7 +52,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
     } finally {
       setIsGenerating(false);
     }
-  }, [imageUrl, selectedColor, product.name, onApiKeyMissing]);
+  }, [imageUrl, selectedColor, product.name, appContext?.selectedModel, onApiKeyMissing]);
 
   const downloadImage = () => {
     if (!generatedImage || !selectedColor) return;

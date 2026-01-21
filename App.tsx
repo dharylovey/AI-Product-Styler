@@ -12,6 +12,7 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { getWebhookUrl, setWebhookUrl } from './services/geminiService';
 import { AppContext, AppContextType } from './types';
+import { AI_MODELS } from './constants';
 
 // Pages
 import { Home } from './pages/Home';
@@ -22,6 +23,7 @@ import { N8nWorkflow } from './pages/N8nWorkflow';
 // 1. Create Root Route (The Layout)
 const rootRoute = createRootRoute({
   component: () => {
+    const [selectedModel, setSelectedModel] = useState(AI_MODELS[0].id);
     const [showConfigModal, setShowConfigModal] = useState(false);
     const [webhookInput, setWebhookInput] = useState('');
 
@@ -44,7 +46,9 @@ const rootRoute = createRootRoute({
     };
 
     const contextValue: AppContextType = {
-      openConfigModal: () => setShowConfigModal(true)
+      openConfigModal: () => setShowConfigModal(true),
+      selectedModel,
+      setSelectedModel
     };
 
     return (
