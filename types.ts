@@ -4,7 +4,7 @@ export interface Product {
   id: string;
   name: string;
   description: string;
-  baseImageId: string; // Picsum ID for consistency
+  imageUrl: string;
   defaultColor: string;
   availableColors: ProductColor[];
 }

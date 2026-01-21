@@ -25,7 +25,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const { targetUrl, body } = req.body;
+  const { targetUrl, body } = req.body as { targetUrl: string; body: unknown };
 
   if (!targetUrl) {
     res.status(400).json({ error: "Missing targetUrl in request body" });
@@ -68,10 +68,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.setHeader("Content-Type", contentType || "application/octet-stream");
       res.send(buffer);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Proxy Error:", error);
-    res
-      .status(500)
-      .json({ error: "Proxy Request Failed", message: error.message });
+    const message =
+      error instanceof Error ? error.message : "Unknown error occurred";
+    res.status(500).json({ error: "Proxy Request Failed", message });
   }
 }

@@ -17,9 +17,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
   const [error, setError] = useState<string | null>(null);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  // Use Picsum for demo images. 
-  // We use the ID from the product definition to keep it consistent.
-  const imageUrl = `https://picsum.photos/id/${product.baseImageId}/600/400`;
+  // We use the image URL from the product definition
+  const imageUrl = product.imageUrl;
 
   const handleStyleWithAI = useCallback(async () => {
     if (!selectedColor) return;

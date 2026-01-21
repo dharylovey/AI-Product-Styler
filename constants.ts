@@ -4,7 +4,7 @@ export const PRODUCTS = [
     name: "Classic Leather Tote",
     description:
       "A timeless leather tote bag perfect for daily use. Features a spacious interior and durable construction.",
-    baseImageId: "1059", // Picsum ID
+    imageUrl: "/leatherbag.webp",
     defaultColor: "Tan",
     availableColors: [
       { name: "Tan", hex: "#D2B48C", code: "tan" },
@@ -17,7 +17,7 @@ export const PRODUCTS = [
     name: "Minimalist Sneaker",
     description:
       "Clean lines and premium materials make this sneaker a wardrobe staple. Comfortable for all-day wear.",
-    baseImageId: "103", // Picsum ID (feet/shoes)
+    imageUrl: "/shoe.webp",
     defaultColor: "White",
     availableColors: [
       { name: "White", hex: "#FFFFFF", code: "white" },
@@ -27,15 +27,15 @@ export const PRODUCTS = [
   },
   {
     id: "3",
-    name: "Ceramic Vase",
+    name: "Everyday Canvas Bag",
     description:
-      "Handcrafted ceramic vase with a modern silhouette. Perfect for fresh flowers or as a standalone piece.",
-    baseImageId: "431",
-    defaultColor: "Sage",
+      "Durable and stylish canvas bag for your daily adventures. Spacious and versatile.",
+    imageUrl: "/bag.webp",
+    defaultColor: "Beige",
     availableColors: [
-      { name: "Sage", hex: "#9CAF88", code: "sage" },
-      { name: "Terracotta", hex: "#E2725B", code: "terracotta" },
-      { name: "Cream", hex: "#FFFDD0", code: "cream" },
+      { name: "Beige", hex: "#F5F5DC", code: "beige" },
+      { name: "Olive", hex: "#808000", code: "olive" },
+      { name: "Navy", hex: "#000080", code: "navy" },
     ],
   },
   {
@@ -43,7 +43,7 @@ export const PRODUCTS = [
     name: "Modern Armchair",
     description:
       "Mid-century modern armchair with solid wood legs. A perfect accent piece for any living room.",
-    baseImageId: "68",
+    imageUrl: "/armchair.webp",
     defaultColor: "Teal",
     availableColors: [
       { name: "Teal", hex: "#008080", code: "teal" },
@@ -56,7 +56,7 @@ export const PRODUCTS = [
     name: "Wireless Headphones",
     description:
       "Premium noise-cancelling headphones with plush ear cushions. Immersive sound quality.",
-    baseImageId: "35",
+    imageUrl: "/headphone.webp",
     defaultColor: "Silver",
     availableColors: [
       { name: "Silver", hex: "#C0C0C0", code: "silver" },
@@ -69,7 +69,7 @@ export const PRODUCTS = [
     name: "Designer Sunglasses",
     description:
       "Chic oversized sunglasses with UV protection. Elevate your summer style instantly.",
-    baseImageId: "338",
+    imageUrl: "/glass.webp",
     defaultColor: "Tortoise",
     availableColors: [
       { name: "Tortoise", hex: "#E5AA70", code: "tortoise" },

@@ -2,19 +2,38 @@
 
 const WEBHOOK_STORAGE_KEY = "n8n_webhook_url";
 
-export const getWebhookUrl = () =>
+export const getWebhookUrl = (): string =>
   import.meta.env.VITE_N8N_WEBHOOK_URL ||
   localStorage.getItem(WEBHOOK_STORAGE_KEY) ||
   "";
 
-export const setWebhookUrl = (url: string) =>
+export const setWebhookUrl = (url: string): void =>
   localStorage.setItem(WEBHOOK_STORAGE_KEY, url);
+
+interface N8nRequestBody {
+  image: string;
+  color: string;
+  productName: string;
+  model: string;
+}
+
+interface N8nProxyRequest {
+  targetUrl: string;
+  body: N8nRequestBody;
+}
+
+interface N8nResponse {
+  image?: string;
+  output?: string;
+  data?: string;
+}
 
 /**
  * Sends the product image and selection to an n8n webhook for processing.
  * @param imageBase64 The base64 string of the original image.
  * @param targetColor The selected color name.
  * @param productName Context about the product.
+ * @param model The selected AI model ID.
  * @returns Promise resolving to the base64 data URI of the generated image.
  */
 export const generateStyledProductImage = async (
@@ -36,7 +55,7 @@ export const generateStyledProductImage = async (
     const isTargetHttp = webhookUrl.startsWith("http://");
 
     let fetchUrl = webhookUrl;
-    let fetchBody: any = {
+    let fetchBody: N8nRequestBody | N8nProxyRequest = {
       image: imageBase64,
       color: targetColor,
       productName: productName,
@@ -48,7 +67,7 @@ export const generateStyledProductImage = async (
       fetchUrl = "/api/n8n-proxy";
       fetchBody = {
         targetUrl: webhookUrl,
-        body: fetchBody,
+        body: fetchBody as N8nRequestBody,
       };
     }
 
@@ -67,13 +86,15 @@ export const generateStyledProductImage = async (
     // Check if the response is JSON
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      const data = await response.json();
+      const data = (await response.json()) as N8nResponse | string;
 
       // Handle various JSON response formats from n8n
       // Expectation: { "image": "data:image/png;base64,..." }
-      if (data.image) return data.image;
-      if (data.output) return data.output;
-      if (data.data) return data.data;
+      if (typeof data === "object") {
+        if (data.image) return data.image;
+        if (data.output) return data.output;
+        if (data.data) return data.data;
+      }
 
       // If n8n returns just the base64 string in the body
       if (typeof data === "string" && data.startsWith("data:image")) {
@@ -89,13 +110,24 @@ export const generateStyledProductImage = async (
       const blob = await response.blob();
       return await new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result as string);
+        reader.onloadend = () => {
+          if (typeof reader.result === "string") {
+            resolve(reader.result);
+          } else {
+            reject(new Error("Failed to read blob as string"));
+          }
+        };
         reader.onerror = reject;
         reader.readAsDataURL(blob);
       });
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("n8n Connection Error:", error);
-    throw new Error(error.message || "Failed to connect to n8n webhook.");
+    if (error instanceof Error) {
+      throw new Error(error.message || "Failed to connect to n8n webhook.");
+    }
+    throw new Error(
+      "Failed to connect to n8n webhook due to an unknown error.",
+    );
   }
 };
