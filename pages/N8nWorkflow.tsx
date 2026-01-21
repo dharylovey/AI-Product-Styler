@@ -6,8 +6,9 @@ export const N8nWorkflow: React.FC = () => {
   "nodes": [
     {
       "parameters": {
+        "httpMethod": "POST",
         "path": "ai-style",
-        "responseMode": "lastNode",
+        "responseMode": "responseNode",
         "options": {}
       },
       "name": "Webhook",
@@ -17,8 +18,12 @@ export const N8nWorkflow: React.FC = () => {
     },
     {
       "parameters": {
-        "modelId": "gemini-2.5-flash-image",
-        "prompt": "Change the color of the {{ $json.productName }} to {{ $json.color }}. Maintain lighting.",
+        "modelId": {
+          "__rl": true,
+          "value": "={{ $json.body.model }}",
+          "mode": "id"
+        },
+        "prompt": "Change the color of the {{ $json.body.productName }} to {{ $json.body.color }}. Maintain lighting.",
         "binaryDataKey": "data"
       },
       "name": "Google Gemini",
@@ -117,8 +122,8 @@ export const N8nWorkflow: React.FC = () => {
                       <ul className="list-disc pl-5 space-y-2 text-slate-600">
                           <li>Add a <strong>Google Gemini</strong> node.</li>
                           <li>Authenticate with your Google Cloud credentials.</li>
-                          <li>Use a model that supports images, like <code>gemini-2.0-flash</code>.</li>
-                          <li>In the prompt field, map the expression: <br/><code className="text-xs bg-slate-100 p-1 rounded">Change the color of {'{{ $json.productName }}'} to {'{{ $json.color }}'}...</code></li>
+                          <li>In the <strong>Model ID</strong> field, select "Expression" and enter: <code>{`{{ $json.body.model }}`}</code>.</li>
+                          <li>In the prompt field, map the expression: <br/><code className="text-xs bg-slate-100 p-1 rounded">Change the color of {'{{ $json.body.productName }}'} to {'{{ $json.body.color }}'}...</code></li>
                           <li>Pass the base64 image from the webhook to the model.</li>
                       </ul>
                   </div>

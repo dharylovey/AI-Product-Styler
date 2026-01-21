@@ -6,7 +6,9 @@
         "httpMethod": "POST",
         "path": "ai-style",
         "responseMode": "responseNode",
-        "options": {}
+        "options": {
+          "allowedOrigins": "https://ai-product-styler.vercel.app"
+        }
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
@@ -14,7 +16,7 @@
         0,
         0
       ],
-      "id": "6df2c7a1-7860-45ff-8517-7e3eeed590d1",
+      "id": "35ccb7da-cb8d-44c7-a549-72d8d8ebfdbf",
       "name": "Webhook",
       "webhookId": "2d154313-56e5-4242-bb55-23af1fe4dd1d"
     },
@@ -36,7 +38,7 @@
         208,
         0
       ],
-      "id": "cb8d6a10-db5e-499a-bf7c-995ce5eb05de",
+      "id": "68b1cb41-57ab-4bdc-a62c-a033acd801b8",
       "name": "Generate an image",
       "credentials": {
         "googlePalmApi": {
@@ -56,7 +58,7 @@
         416,
         0
       ],
-      "id": "0cc6a0f6-90a2-4d65-b1d7-dabf69143187",
+      "id": "d0988b21-f595-441c-af9a-46cf1df65412",
       "name": "Respond to Webhook"
     }
   ],
@@ -88,16 +90,12 @@
   "active": true,
   "settings": {
     "executionOrder": "v1",
-    "availableInMCP": false,
-    "timeSavedMode": "fixed",
-    "callerPolicy": "workflowsFromSameOwner",
-    "executionTimeout": 3600
+    "availableInMCP": false
   },
-  "versionId": "bf55cf12-a939-41ca-8532-8a5da7ec8ea1",
+  "versionId": "e4f81701-297d-4984-8e3c-efa56d3a1448",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "b10c714de5adc8656b4fdedb42a0d83a89e5753199212ba91756756dd3f1b9f4"
   },
-  "id": "ASDyoG7npn5iSzqPb_qgk",
+  "id": "w1aBln7TllpL29e0LF22j",
   "tags": []
 }
