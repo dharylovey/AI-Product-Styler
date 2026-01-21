@@ -50,6 +50,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
     }
   }, [imageUrl, selectedColor, product.name, onApiKeyMissing]);
 
+  const downloadImage = () => {
+    if (!generatedImage || !selectedColor) return;
+    const link = document.createElement("a");
+    link.href = generatedImage;
+    link.download = `${product.name}-${selectedColor.name}-styled.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="group relative bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
       
@@ -65,12 +75,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
              <div className="absolute top-3 right-3 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg">
                ✨ AI Styled
              </div>
-             <button 
-                onClick={() => setGeneratedImage(null)}
-                className="absolute bottom-3 right-3 bg-white/90 text-slate-700 hover:text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm transition-colors"
-             >
-               Reset
-             </button>
+             <div className="absolute bottom-3 right-3 flex gap-2">
+               <button
+                 onClick={downloadImage}
+                 className="bg-white/90 text-slate-700 hover:text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm transition-colors flex items-center gap-1"
+                 title="Download Image"
+               >
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                 </svg>
+                 Download
+               </button>
+               <button 
+                  onClick={() => setGeneratedImage(null)}
+                  className="bg-white/90 text-slate-700 hover:text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm transition-colors"
+               >
+                 Reset
+               </button>
+             </div>
            </div>
         ) : (
           <img
