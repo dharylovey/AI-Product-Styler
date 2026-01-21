@@ -31,16 +31,31 @@ export const generateStyledProductImage = async (
   }
 
   try {
-    const response = await fetch(webhookUrl, {
+    const isHttps = window.location.protocol === "https:";
+    const isTargetHttp = webhookUrl.startsWith("http://");
+
+    let fetchUrl = webhookUrl;
+    let fetchBody: any = {
+      image: imageBase64,
+      color: targetColor,
+      productName: productName,
+    };
+
+    // If we are on HTTPS and trying to hit HTTP, we MUST use the proxy
+    if (isHttps && isTargetHttp) {
+      fetchUrl = "/api/n8n-proxy";
+      fetchBody = {
+        targetUrl: webhookUrl,
+        body: fetchBody,
+      };
+    }
+
+    const response = await fetch(fetchUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        image: imageBase64,
-        color: targetColor,
-        productName: productName,
-      }),
+      body: JSON.stringify(fetchBody),
     });
 
     if (!response.ok) {
