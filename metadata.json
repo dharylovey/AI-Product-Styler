@@ -1,0 +1,5 @@
+{
+  "name": "AI Product Styler",
+  "description": "An AI-powered product styling landing page using n8n and Gemini.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,100 @@
+{
+  "name": "AI Product Styler Backend",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-style",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        80
+      ],
+      "webhookId": "ai-style-webhook",
+      "id": "93e6ade3-f0be-4bea-bb81-7b94365b581c"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3-pro-image-preview",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3-pro-image-preview (Nano Banana Pro)"
+        },
+        "prompt": "=Professional product photo of {{ $json.body.productName }} in {{ $json.body.color }} color (Note: Since your webhook data is inside body, we use $json.body.X)",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        80
+      ],
+      "id": "639954f3-7083-4bf2-8b4b-daf0b8427af3",
+      "name": "Generate an image",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "9D6UcRgGKHZh6gJe",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        192,
+        80
+      ],
+      "id": "4ad0d1d9-d83c-42fb-a9b6-429121541707",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Generate an image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate an image": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a6baf276-c890-4981-ab84-6f39a83a3b58",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c2d76bf28c8779040ecaa6058a2869aab9661a94585571551dbbffff47d253ea"
+  },
+  "id": "poMtU2yRmsBMefZI5jSRO",
+  "tags": []
+}
