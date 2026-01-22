@@ -7,7 +7,7 @@
         "path": "ai-style",
         "responseMode": "responseNode",
         "options": {
-          "allowedOrigins": "https://ai-product-styler.vercel.app"
+          "allowedOrigins": "*"
         }
       },
       "type": "n8n-nodes-base.webhook",
@@ -19,56 +19,6 @@
       "id": "35ccb7da-cb8d-44c7-a549-72d8d8ebfdbf",
       "name": "Webhook",
       "webhookId": "2d154313-56e5-4242-bb55-23af1fe4dd1d"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Rate Limit Configuration\nconst data = getWorkflowStaticData('global');\nconst limit = 3;\nconst interval = 10 * 60 * 1000; // 10 minutes in ms\n\nconst now = new Date().getTime();\n\nif (!data.lastReset || now - data.lastReset > interval) {\n  data.count = 0;\n  data.lastReset = now;\n}\n\nif (data.count >= limit) {\n  return {\n    json: {\n      ...input.all()[0].json,\n      rateLimited: true\n    }\n  };\n}\n\ndata.count++;\nreturn {\n  json: {\n    ...input.all()[0].json,\n    rateLimited: false\n  }\n};"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        220,
-        0
-      ],
-      "id": "273a557c-502a-4318-b80c-0352526e0e1a",
-      "name": "Rate Limit Check"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "boolean": [
-            {
-              "value1": "={{ $json.rateLimited }}",
-              "value2": true
-            }
-          ]
-        }
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        440,
-        0
-      ],
-      "id": "f8a7e4b2-2991-4c28-9125-926588147775",
-      "name": "Is Rate Limited"
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "{\n  \"error\": \"Rate limit exceeded. Please try again in 10 minutes.\"\n}",
-        "options": {
-          "responseCode": 429
-        }
-      },
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        660,
-        -100
-      ],
-      "id": "e5c2b9a1-09d3-4a8f-b67e-1284950346c1",
-      "name": "Respond Rate Limited"
     },
     {
       "parameters": {
@@ -85,8 +35,8 @@
       "type": "@n8n/n8n-nodes-langchain.googleGemini",
       "typeVersion": 1.1,
       "position": [
-        660,
-        100
+        208,
+        0
       ],
       "id": "68b1cb41-57ab-4bdc-a62c-a033acd801b8",
       "name": "Generate an image",
@@ -105,8 +55,8 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        880,
-        100
+        416,
+        0
       ],
       "id": "d0988b21-f595-441c-af9a-46cf1df65412",
       "name": "Respond to Webhook"
@@ -116,35 +66,6 @@
   "connections": {
     "Webhook": {
       "main": [
-        [
-          {
-            "node": "Rate Limit Check",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Rate Limit Check": {
-      "main": [
-        [
-          {
-            "node": "Is Rate Limited",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Is Rate Limited": {
-      "main": [
-        [
-          {
-            "node": "Respond Rate Limited",
-            "type": "main",
-            "index": 0
-          }
-        ],
         [
           {
             "node": "Generate an image",

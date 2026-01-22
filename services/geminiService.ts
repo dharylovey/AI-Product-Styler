@@ -1,6 +1,52 @@
 // This service now connects to your n8n workflow instead of calling Gemini directly.
 
 const WEBHOOK_STORAGE_KEY = "n8n_webhook_url";
+const RATE_LIMIT_KEY = "n8n_rate_limit";
+const RATE_LIMIT_MAX = Number(import.meta.env.VITE_RATE_LIMIT_MAX) || 5;
+const RATE_LIMIT_WINDOW_MS =
+  (Number(import.meta.env.VITE_RATE_LIMIT_WINDOW_MINUTES) || 5) * 60 * 1000;
+
+interface RateLimitData {
+  count: number;
+  resetTime: number;
+}
+
+const getRateLimitData = (): RateLimitData => {
+  const stored = localStorage.getItem(RATE_LIMIT_KEY);
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch {
+      return { count: 0, resetTime: Date.now() + RATE_LIMIT_WINDOW_MS };
+    }
+  }
+  return { count: 0, resetTime: Date.now() + RATE_LIMIT_WINDOW_MS };
+};
+
+const setRateLimitData = (data: RateLimitData): void => {
+  localStorage.setItem(RATE_LIMIT_KEY, JSON.stringify(data));
+};
+
+const checkAndUpdateRateLimit = (): void => {
+  let data = getRateLimitData();
+  const now = Date.now();
+
+  // Reset if window has passed
+  if (now > data.resetTime) {
+    data = { count: 0, resetTime: now + RATE_LIMIT_WINDOW_MS };
+  }
+
+  if (data.count >= RATE_LIMIT_MAX) {
+    const remainingMs = data.resetTime - now;
+    const remainingMins = Math.ceil(remainingMs / 60000);
+    throw new Error(
+      `Rate limit exceeded. Please try again in ${remainingMins} minute(s).`,
+    );
+  }
+
+  data.count++;
+  setRateLimitData(data);
+};
 
 export const getWebhookUrl = (): string =>
   import.meta.env.VITE_N8N_WEBHOOK_URL ||
@@ -42,6 +88,9 @@ export const generateStyledProductImage = async (
   productName: string,
   model: string,
 ): Promise<string> => {
+  // Check rate limit before proceeding
+  checkAndUpdateRateLimit();
+
   const webhookUrl = getWebhookUrl();
 
   if (!webhookUrl) {
@@ -82,26 +131,32 @@ export const generateStyledProductImage = async (
     if (!response.ok) {
       let errorMessage = `n8n Error: ${response.statusText} (${response.status})`;
       try {
-        const errorData = await response.json();
-        // Check for n8n-proxy structure: { error: "...", details: "..." }
-        if (errorData.details) {
+        const errorText = await response.text();
+        if (errorText) {
           try {
-            // details might be a JSON string from n8n
-            const innerError = JSON.parse(errorData.details);
-            if (innerError.error) errorMessage = innerError.error;
-          } catch {
-            // details is not JSON, just use it if it's a string
-            if (typeof errorData.details === "string")
-              errorMessage = errorData.details;
+            const errorData = JSON.parse(errorText);
+            // Check for n8n-proxy structure: { error: "...", details: "..." }
+            if (errorData.details) {
+              try {
+                const innerError = JSON.parse(errorData.details);
+                if (innerError.error) errorMessage = innerError.error;
+              } catch {
+                if (typeof errorData.details === "string")
+                  errorMessage = errorData.details;
+              }
+            } else if (errorData.error) {
+              errorMessage = errorData.error;
+            } else if (errorData.message) {
+              errorMessage = errorData.message;
+            }
+          } catch (jsonError) {
+            // Response text is not JSON, might be a plain text error message
+            // Limit length just in case it's huge html
+            errorMessage = `n8n Error: ${errorText.substring(0, 100)}`;
           }
-        } else if (errorData.error) {
-          // Direct error field
-          errorMessage = errorData.error;
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
         }
       } catch (e) {
-        // Failed to parse JSON, keep default errorMessage
+        // Failed to read text or other error, keep default errorMessage
       }
       throw new Error(errorMessage);
     }
@@ -109,7 +164,14 @@ export const generateStyledProductImage = async (
     // Check if the response is JSON
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
-      const data = (await response.json()) as N8nResponse | string;
+      let data: N8nResponse | string;
+      try {
+        const text = await response.text();
+        data = text ? JSON.parse(text) : {};
+      } catch (parseError) {
+        console.warn("Failed to parse JSON success response:", parseError);
+        throw new Error("Received invalid JSON from n8n.");
+      }
 
       // Handle various JSON response formats from n8n
       // Expectation: { "image": "data:image/png;base64,..." }
@@ -125,8 +187,9 @@ export const generateStyledProductImage = async (
       }
 
       console.error("Unexpected n8n response:", data);
+      const dataStr = typeof data === "string" ? data : JSON.stringify(data);
       throw new Error(
-        "Invalid response from n8n. Expected JSON with an 'image' property.",
+        `Invalid response from n8n. Expected JSON with an 'image' property. Received: ${dataStr.substring(0, 200)}`,
       );
     } else {
       // Assume it's a raw image (Binary response)
