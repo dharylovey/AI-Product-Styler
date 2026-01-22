@@ -35,7 +35,6 @@ export const UploadProductForm: React.FC<UploadProductFormProps> = ({ onProductR
     handleSubmit,
     formState: { errors, isSubmitting },
     setValue,
-    watch,
     reset,
   } = useForm<UploadFormData>({
     resolver: zodResolver(uploadSchema),
