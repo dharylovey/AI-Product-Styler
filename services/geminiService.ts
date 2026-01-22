@@ -80,7 +80,30 @@ export const generateStyledProductImage = async (
     });
 
     if (!response.ok) {
-      throw new Error(`n8n Error: ${response.statusText} (${response.status})`);
+      let errorMessage = `n8n Error: ${response.statusText} (${response.status})`;
+      try {
+        const errorData = await response.json();
+        // Check for n8n-proxy structure: { error: "...", details: "..." }
+        if (errorData.details) {
+          try {
+            // details might be a JSON string from n8n
+            const innerError = JSON.parse(errorData.details);
+            if (innerError.error) errorMessage = innerError.error;
+          } catch {
+            // details is not JSON, just use it if it's a string
+            if (typeof errorData.details === "string")
+              errorMessage = errorData.details;
+          }
+        } else if (errorData.error) {
+          // Direct error field
+          errorMessage = errorData.error;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch (e) {
+        // Failed to parse JSON, keep default errorMessage
+      }
+      throw new Error(errorMessage);
     }
 
     // Check if the response is JSON
