@@ -1,8 +1,11 @@
 import React, { useState, useCallback, useContext } from 'react';
-import { createPortal } from 'react-dom';
 import { Product, ProductColor, AppContext } from '../types';
 import { urlToBase64 } from '../utils/imageUtils';
 import { generateStyledProductImage } from '../services/geminiService';
+import { ProductImageArea } from './product-card/ProductImageArea';
+import { ColorSelector } from './product-card/ColorSelector';
+import { StyleButton } from './product-card/StyleButton';
+import { ProductLightbox } from './product-card/ProductLightbox';
 
 interface ProductCardProps {
   product: Product;
@@ -13,7 +16,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
   const appContext = useContext(AppContext);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
   const [customColor, setCustomColor] = useState<string>("#000000");
-  const colorInputRef = React.useRef<HTMLInputElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,104 +68,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
     document.body.removeChild(link);
   };
 
-  const Lightbox = () => {
-    if (!isLightboxOpen || !generatedImage || !selectedColor) return null;
+  const handleColorSelect = (color: ProductColor) => {
+    setSelectedColor(color);
+    setGeneratedImage(null);
+    setError(null);
+  };
 
-    return createPortal(
-      <div 
-        className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
-        onClick={() => setIsLightboxOpen(false)}
-      >
-        <button 
-          onClick={() => setIsLightboxOpen(false)}
-          className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-        
-        <img 
-          src={generatedImage} 
-          alt={`${product.name} - Styled Preview`}
-          className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl cursor-default"
-          onClick={(e) => e.stopPropagation()} 
-        />
-        
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4" onClick={(e) => e.stopPropagation()}>
-           <button
-             onClick={downloadImage}
-             className="bg-white text-slate-900 hover:bg-slate-100 font-semibold px-6 py-3 rounded-full shadow-lg transition-transform hover:scale-105 flex items-center gap-2"
-           >
-             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-             </svg>
-             Download
-           </button>
-        </div>
-      </div>,
-      document.body
-    );
+  const handleCustomColorChange = (newColor: string) => {
+    setCustomColor(newColor);
+    setSelectedColor({ name: 'Custom', hex: newColor });
+    setGeneratedImage(null);
+    setError(null);
   };
 
   return (
     <>
-      <Lightbox />
+      <ProductLightbox 
+        isOpen={isLightboxOpen}
+        onClose={() => setIsLightboxOpen(false)}
+        image={generatedImage}
+        productName={product.name}
+        onDownload={downloadImage}
+      />
+
       <div className="group relative bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden">
         
         {/* Image Area */}
-        <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
-          {generatedImage ? (
-             <div className="relative w-full h-full">
-               <img
-                 src={generatedImage}
-                 alt={`${product.name} in ${selectedColor?.name}`}
-                 className="h-full w-full object-cover animate-in fade-in duration-700 cursor-zoom-in"
-                 onClick={() => setIsLightboxOpen(true)}
-               />
-               <div className="absolute top-3 right-3 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg">
-                 ✨ AI Styled
-               </div>
-               <div className="absolute bottom-3 right-3 flex gap-2">
-                 <button
-                   onClick={(e) => { e.stopPropagation(); downloadImage(); }}
-                   className="bg-white/90 text-slate-700 hover:text-indigo-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm transition-colors flex items-center gap-1"
-                   title="Download Image"
-                 >
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                   </svg>
-                   Download
-                 </button>
-                 <button 
-                    onClick={(e) => { e.stopPropagation(); setGeneratedImage(null); }}
-                    className="bg-white/90 text-slate-700 hover:text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full shadow-sm backdrop-blur-sm transition-colors"
-                 >
-                   Reset
-                 </button>
-               </div>
-             </div>
-          ) : (
-            <img
-              src={imageUrl}
-              alt={product.name}
-              className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${isGenerating ? 'opacity-50 blur-sm scale-105' : ''}`}
-            />
-          )}
-          
-          {/* Loading Overlay */}
-          {isGenerating && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="flex flex-col items-center p-4 bg-white/90 backdrop-blur-md rounded-xl shadow-2xl">
-                <svg className="animate-spin h-8 w-8 text-indigo-600 mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span className="text-xs font-semibold text-slate-700 animate-pulse">Processing in n8n...</span>
-              </div>
-            </div>
-          )}
-        </div>
+        <ProductImageArea 
+          productName={product.name}
+          selectedColorName={selectedColor?.name}
+          imageUrl={imageUrl}
+          generatedImage={generatedImage}
+          isGenerating={isGenerating}
+          onDownload={downloadImage}
+          onReset={() => setGeneratedImage(null)}
+          onOpenLightbox={() => setIsLightboxOpen(true)}
+        />
 
         {/* Content Area */}
         <div className="p-6 flex-1 flex flex-col">
@@ -173,106 +113,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onApiKeyMissi
           </div>
 
           {/* Color Selection */}
-          <div className="mt-auto">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 block">
-              Select Color Variant
-            </label>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {product.availableColors.map((color) => {
-                const isSelected = selectedColor?.name === color.name;
-                return (
-                  <button
-                    key={color.name}
-                    onClick={() => {
-                      setSelectedColor(color);
-                      setGeneratedImage(null);
-                      setError(null);
-                    }}
-                    className={`relative w-8 h-8 rounded-full flex-shrink-0 border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${isSelected ? 'ring-2 ring-offset-2 ring-indigo-500 border-white scale-110' : 'border-slate-200 hover:scale-105'}`}
-                    style={{ backgroundColor: color.hex }}
-                    title={color.name}
-                    aria-label={`Select color ${color.name}`}
-                  >
-                    {isSelected && (
-                      <span className="absolute inset-0 flex items-center justify-center">
-                         <svg className="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-              
-              {/* Color Picker Button */}
-              <div className="relative">
-                <button
-                  onClick={() => colorInputRef.current?.click()}
-                  className={`relative w-8 h-8 rounded-full flex-shrink-0 border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 bg-gradient-to-br from-red-500 via-green-500 to-blue-500 ${selectedColor?.name === 'Custom' ? 'ring-2 ring-offset-2 ring-indigo-500 border-white scale-110' : 'border-slate-200 hover:scale-105'}`}
-                  title="Custom Color"
-                  aria-label="Select custom color"
-                >
-                  <span className="sr-only">Pick a custom color</span>
-                  {selectedColor?.name === 'Custom' && (
-                     <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/20">
-                        <svg className="w-4 h-4 text-white drop-shadow-md" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                     </div>
-                  )}
-                </button>
-                <input
-                  ref={colorInputRef}
-                  type="color"
-                  className="absolute opacity-0 pointer-events-none w-0 h-0"
-                  value={customColor}
-                  onChange={(e) => {
-                    const newColor = e.target.value;
-                    setCustomColor(newColor);
-                    setSelectedColor({ name: 'Custom', hex: newColor });
-                    setGeneratedImage(null);
-                    setError(null);
-                  }}
-                />
-              </div>
+          <ColorSelector 
+            availableColors={product.availableColors}
+            selectedColor={selectedColor}
+            customColor={customColor}
+            onColorSelect={handleColorSelect}
+            onCustomColorChange={handleCustomColorChange}
+          />
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">
+              {error}
             </div>
+          )}
 
-            {/* Selected Color Label */}
-            {selectedColor && (
-              <div className="mb-4 text-sm text-slate-600 font-medium">
-                Selected: <span className="text-indigo-600" style={{ color: selectedColor.name === 'Custom' ? selectedColor.hex : undefined }}>
-                  {selectedColor.name === 'Custom' ? selectedColor.hex.toUpperCase() : selectedColor.name}
-                </span>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-              <div className="mb-4 text-xs text-red-600 bg-red-50 p-2 rounded border border-red-100">
-                {error}
-              </div>
-            )}
-
-            {/* Action Button */}
-            <button
-              onClick={handleStyleWithAI}
-              disabled={!selectedColor || isGenerating}
-              className={`w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm font-semibold shadow-md transition-all ${
-                !selectedColor || isGenerating
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed shadow-none'
-                  : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-lg active:scale-95'
-              }`}
-            >
-               {generatedImage ? (
-                  <>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                    Regenerate
-                  </>
-               ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    Style it with AI
-                  </>
-               )}
-            </button>
-          </div>
+          {/* Action Button */}
+          <StyleButton 
+            isGenerating={isGenerating}
+            hasSelectedColor={!!selectedColor}
+            hasGeneratedImage={!!generatedImage}
+            onStyleWithAI={handleStyleWithAI}
+          />
         </div>
       </div>
     </>
