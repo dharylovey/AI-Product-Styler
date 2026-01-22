@@ -62,9 +62,12 @@ export const ColorSelector: React.FC<ColorSelectorProps> = ({
                     <input
                         ref={colorInputRef}
                         type="color"
-                        className="absolute opacity-0 pointer-events-none w-0 h-0"
+                        className="absolute opacity-0 w-8 h-8 top-0 left-0 cursor-pointer"
                         value={customColor}
-                        onChange={(e) => onCustomColorChange(e.target.value)}
+                        onChange={(e) => {
+                           const newColor = e.target.value;
+                           onCustomColorChange(newColor);
+                        }}
                     />
                 </div>
             </div>

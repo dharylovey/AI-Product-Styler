@@ -20,3 +20,18 @@ export const urlToBase64 = async (imageUrl: string): Promise<string> => {
     throw new Error("Failed to process image.");
   }
 };
+
+/**
+ * Converts a File object to a Base64 string.
+ */
+export const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64data = reader.result as string;
+      resolve(base64data);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
