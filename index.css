@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Since you are using CDN in HTML, these directives might not be processed if postcss is not set up, 
+   but it is good practice to have them if you switch to local build. 
+   
+   However, the HTML uses <link rel="stylesheet" href="/index.css">.
+   If using pure CSS without build step for CSS, we can put custom styles here.
+*/
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}

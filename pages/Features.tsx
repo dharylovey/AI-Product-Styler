@@ -27,8 +27,8 @@ export const Features: React.FC = () => {
               ),
             },
             {
-              name: 'Powered by Gemini 2.5',
-              description: 'Utilizing the state-of-the-art multimodal capabilities of Gemini 2.5 Flash Image to understand lighting, texture, and context.',
+              name: 'Advanced AI Model Selection',
+              description: 'Experiment with various state-of-the-art models including Gemini 2.5, Gemini 3 Pro, and Imagen 4.0. Choose the best model for your specific styling needs.',
               icon: (
                 <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
