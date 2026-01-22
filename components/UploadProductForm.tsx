@@ -182,7 +182,7 @@ export const UploadProductForm: React.FC<UploadProductFormProps> = ({ onProductR
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex w-full justify-center rounded-md bg-slate-900 px-3 py-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+            className="flex w-full justify-center rounded-xl bg-indigo-600 px-3 py-3 text-sm font-semibold leading-6 text-white shadow-md hover:bg-indigo-700 hover:shadow-lg active:scale-95 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed disabled:shadow-none transition-all"
           >
             {isSubmitting ? (
                 <span className="flex items-center gap-2">
